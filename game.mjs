@@ -114,7 +114,7 @@ async function showSettingsMenu() {
         if ([SETTINGS_MENU_CHOICES.SETTINGS_MENU_CHOICE_LANGUAGES].includes(Number(choice))){
             validChoice = true;
             await showLanguagesMenu();
-        } else if ([, SETTINGS_MENU_CHOICES.SETTINGS_MENU_CHOICE_BACK].includes(Number(choice))){
+        } else {
             validChoice = true;
             await start();
         }
@@ -185,10 +185,16 @@ async function askWantToPlayAgain() {
 
 function showGameSummary(outcome) {
     clearScreen();
-    let winningPlayer = (outcome > 0) ? 1 : 2;
-    print(language.WINNER_IS_TEXT + winningPlayer);
-    showGameBoardWithCurrentState();
-    print(language.GAME_OVER_TEXT);
+    if (outcome = 0){
+        print("It's a draw");
+        showGameBoardWithCurrentState();
+        print(language.GAME_OVER_TEXT);
+    }else{
+        let winningPlayer = (outcome > 0) ? 1 : 2;
+        print(language.WINNER_IS_TEXT + winningPlayer);
+        showGameBoardWithCurrentState();
+        print(language.GAME_OVER_TEXT);
+    }
 }
 
 function changeCurrentPlayer() {
@@ -281,7 +287,7 @@ function isValidPositionOnBoard(position) {
     else if (Number.parseInt(position[0]) != position[0] && Number.parseInt(position[1]) != position[1]) {
         // Position taken.
         inputWasCorrect = false;
-    } else if (gameboard[position[0]] && gameboard[position[1]] != 0) {
+    } else if ((gameboard[position[0][1]]) = 1 || (- 1)) {
         inputWasCorrect = false;
     }
 
