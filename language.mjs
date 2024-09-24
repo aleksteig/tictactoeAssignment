@@ -30,7 +30,7 @@ const DICTIONARY = {
         LANGUAGE_SETTINGS_NORWEGIAN_TEXT: "1. Norsk",
         LANGUAGE_SETTINGS_ENGLISH_TEXT: "2. Engelsk",
         LANGUAGE_SETTINGS_BACK_TEXT: "3. Tilbake",
-        PLACE_YOUR_MARK_TEXT: "Sett et merke i rute: ",
+        PLACE_YOUR_MARK_TEXT: "Sett et merke i en rute: ",
         PLAYER_TEXT: "Spiller ",
         YOUR_TURN_TEXT: " det er din tur",
         PLAYER_ONE_DESCRIPTION: "en",
