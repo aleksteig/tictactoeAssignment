@@ -32,7 +32,7 @@ let chosenAction = NO_CHOICE;
 let language = DICTIONARY.en;
 let gameboard;
 let currentPlayer;
-
+let cell = 0;
 
 clearScreen();
 showSplashScreen();
@@ -78,10 +78,10 @@ async function showMenu() {
     while (!validChoice) {
         // Display our menu to the player.
         clearScreen();
-        print(ANSI.COLOR.YELLOW + "MENU" + ANSI.RESET);
-        print("1. Play Game");
-        print("2. Settings");
-        print("3. Exit Game");
+        print(ANSI.COLOR.YELLOW + language.MENU_TEXT + ANSI.RESET);
+        print(language.START_GAME_MENU_TEXT);
+        print(language.SETTINGS_GAME_MENU_TEXT);
+        print(language.EXIT_GAME_MENU_TEXT);
 
         // Wait for the choice.
         choice = await askQuestion("");
@@ -103,9 +103,9 @@ async function showSettingsMenu() {
     while (!validChoice) {
         // Display our menu to the player.
         clearScreen();
-        print(ANSI.COLOR.YELLOW + "MENU" + ANSI.RESET);
-        print("1. Languages");
-        print("2. Back");
+        print(ANSI.COLOR.YELLOW + language.MENU_TEXT + ANSI.RESET);
+        print(language.SETTINGS_LANGUAGE_TEXT);
+        print(language.SETTINGS_BACK_TEXT);
 
         // Wait for the choice.
         choice = await askQuestion("");
@@ -132,10 +132,10 @@ async function showLanguagesMenu() {
     while (!validChoice) {
         // Display our menu to the player.
         clearScreen();
-        print(ANSI.COLOR.YELLOW + "MENU" + ANSI.RESET);
-        print("1. Norwegian");
-        print("2. English");
-        print("3. Back");
+        print(ANSI.COLOR.YELLOW + language.MENU_TEXT + ANSI.RESET);
+        print(language.LANGUAGE_SETTINGS_NORWEGIAN_TEXT);
+        print(language.LANGUAGE_SETTINGS_ENGLISH_TEXT);
+        print(language.LANGUAGE_SETTINGS_BACK_TEXT);
 
         // Wait for the choice.
         choice = await askQuestion("");
@@ -148,7 +148,7 @@ async function showLanguagesMenu() {
             validChoice = true;
             language = DICTIONARY.en;
         } else {
-            showSettingsMenu();
+            await showSettingsMenu();
         }
     }
 
@@ -186,9 +186,9 @@ async function askWantToPlayAgain() {
 function showGameSummary(outcome) {
     clearScreen();
     let winningPlayer = (outcome > 0) ? 1 : 2;
-    print("Winner is player " + winningPlayer);
+    print(language.WINNER_IS_TEXT + winningPlayer);
     showGameBoardWithCurrentState();
-    print("GAME OVER");
+    print(language.GAME_OVER_TEXT);
 }
 
 function changeCurrentPlayer() {
@@ -254,7 +254,7 @@ function updateGameBoardState(move) {
 async function getGameMoveFromCurrentPlayer() {
     let position = null;
     do {
-        let rawInput = await askQuestion("Place your mark at: ");
+        let rawInput = await askQuestion(language.PLACE_YOUR_MARK_TEXT);
         position = rawInput.split(" ");
     } while (isValidPositionOnBoard(position) == false)
 
@@ -284,7 +284,6 @@ function isValidPositionOnBoard(position) {
     } else if (gameboard[position[0]][position[1]] != 0) {
         inputWasCorrect = false;
     } 
-    console.log(gameboard[position[0]][position[1]])
 
     return isValidInput;
 }
@@ -301,7 +300,7 @@ function showGameBoardWithCurrentState() {
     for (let currentRow = 0; currentRow < GAME_BOARD_SIZE; currentRow++) {
         let rowOutput = "";
         for (let currentCol = 0; currentCol < GAME_BOARD_SIZE; currentCol++) {
-            let cell = gameboard[currentRow][currentCol];
+            cell = gameboard[currentRow][currentCol];
             if (cell == 0) {
                 rowOutput += "_ ";
             }
