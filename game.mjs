@@ -15,13 +15,23 @@ const MENU_CHOICES = {
     MENU_CHOICE_EXIT_GAME: 3
 };
 
+const SETTINGS_MENU_CHOICES = {
+    SETTINGS_MENU_CHOICE_LANGUAGES: 1,
+    SETTINGS_MENU_CHOICE_BACK: 2
+}
+
+const LANGUAGE_MENU_CHOICES = {
+    LANGUAGE_MENU_CHOICE_NORWEGIAN: 1,
+    LANGUAGE_MENU_CHOICE_ENGLISH: 2,
+    LANGUAGE_MENU_CHOICE_BACK: 3
+}
+
 const NO_CHOICE = -1;
 
+let chosenAction = NO_CHOICE;
 let language = DICTIONARY.en;
 let gameboard;
 let currentPlayer;
-
-//Add a variable to change the language, example: languageSelected = DICTIONARY.en.something; when the player presses 1 or 2.
 
 
 clearScreen();
@@ -35,7 +45,6 @@ async function start() {
 
     do {
 
-        let chosenAction = NO_CHOICE;
         chosenAction = await showMenu();
 
         if (chosenAction == MENU_CHOICES.MENU_CHOICE_START_GAME) {
@@ -102,8 +111,44 @@ async function showSettingsMenu() {
         choice = await askQuestion("");
 
         // Check to see if the choice is valid.
-        if ([MENU_CHOICES.MENU_CHOICE_START_GAME, MENU_CHOICES.MENU_CHOICE_SHOW_SETTINGS, MENU_CHOICES.MENU_CHOICE_EXIT_GAME].includes(Number(choice))) {
+        if ([SETTINGS_MENU_CHOICES.SETTINGS_MENU_CHOICE_LANGUAGES].includes(Number(choice))){
             validChoice = true;
+            await showLanguagesMenu();
+        } else if ([, SETTINGS_MENU_CHOICES.SETTINGS_MENU_CHOICE_BACK].includes(Number(choice))){
+            validChoice = true;
+            await start();
+        }
+        
+    }
+
+    return choice;
+}
+
+async function showLanguagesMenu() {
+
+    let choice = -1;  // This variable tracks the choice the player has made. We set it to -1 initially because that is not a valid choice.
+    let validChoice = false;    // This variable tells us if the choice the player has made is one of the valid choices. It is initially set to false because the player has made no choices.
+
+    while (!validChoice) {
+        // Display our menu to the player.
+        clearScreen();
+        print(ANSI.COLOR.YELLOW + "MENU" + ANSI.RESET);
+        print("1. Norwegian");
+        print("2. English");
+        print("3. Back");
+
+        // Wait for the choice.
+        choice = await askQuestion("");
+
+        // Check to see if the choice is valid.
+        if ([LANGUAGE_MENU_CHOICES.LANGUAGE_MENU_CHOICE_NORWEGIAN].includes(Number(choice))) {
+            validChoice = true;
+            language = DICTIONARY.no;
+        } else if ([LANGUAGE_MENU_CHOICES.LANGUAGE_MENU_CHOICE_ENGLISH].includes(Number(choice))){
+            validChoice = true;
+            language = DICTIONARY.en;
+        } else {
+            showSettingsMenu();
         }
     }
 
@@ -245,11 +290,11 @@ function isValidPositionOnBoard(position) {
 }
 
 function showHUD() {
-    let playerDescription = "one";
+    let playerDescription = language.PLAYER_ONE_DESCRIPTION;
     if (PLAYER_2 == currentPlayer) {
-        playerDescription = "two";
+        playerDescription = language.PLAYER_TWO_DESCRIPTION;
     }
-    print("Player " + playerDescription + " it is your turn");
+    print(language.PLAYER_TEXT + playerDescription + language.YOUR_TURN_TEXT);
 }
 
 function showGameBoardWithCurrentState() {
@@ -294,10 +339,6 @@ function createGameBoard() {
 
 function clearScreen() {
     console.log(ANSI.CLEAR_SCREEN, ANSI.CURSOR_HOME, ANSI.RESET);
-}
-
-async function settingsMenu(){
-
 }
 
 
