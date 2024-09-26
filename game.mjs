@@ -3,6 +3,7 @@ import { debug, DEBUG_LEVELS } from "./debug.mjs";
 import { ANSI } from "./ansi.mjs";
 import DICTIONARY from "./language.mjs";
 import showSplashScreen from "./splash.mjs";
+import { ALL } from "dns";
 
 const GAME_BOARD_SIZE = 3;
 const PLAYER_1 = 1;
@@ -185,7 +186,7 @@ async function askWantToPlayAgain() {
 
 function showGameSummary(outcome) {
     clearScreen();
-    if (outcome = 0){
+    if (outcome == 2){
         print("It's a draw");
         showGameBoardWithCurrentState();
         print(language.GAME_OVER_TEXT);
@@ -236,12 +237,28 @@ function evaluateGameState() {
         sumNegDiagonal += gameboard[i][GAME_BOARD_SIZE - i - 1];
         sumPosDiagonal += gameboard[i][i];
 
-        if (Math.abs(sumPosDiagonal) == 3)
+        if (Math.abs(sumPosDiagonal) == 3){
             state = sumPosDiagonal;
-        else if (Math.abs(sumNegDiagonal) == 3)
+        } else if (Math.abs(sumNegDiagonal) == 3){
             state = sumNegDiagonal;
+        }
+    }
 
-        sum = 0;
+
+    
+    if (allCellsAreTaken(gameboard) && Math.abs(state) != 3){
+        return 2;
+    }
+
+    function allCellsAreTaken(gameboard){
+        for (let row = 0; row < GAME_BOARD_SIZE; row++) {
+            for (let col = 0; col < GAME_BOARD_SIZE; col++) {
+                if (gameboard[row][col] === 0){
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     return state / 3;
@@ -273,22 +290,24 @@ function isValidPositionOnBoard(position) {
         // We were not given two numbers or more.
         return false;
     }
-    
-    let inputWasCorrect;
 
     let isValidInput = true;
+
     if (position[0] * 1 != position[0] && position[1] * 1 != position[1]) {
         // Not Numbers
-        inputWasCorrect = false;
+        isValidInput = false;
     } else if (position[0] > GAME_BOARD_SIZE || position[1] > GAME_BOARD_SIZE) {
         // Not on board
-        inputWasCorrect = false;
+        isValidInput = false;
     }
     else if (Number.parseInt(position[0]) != position[0] && Number.parseInt(position[1]) != position[1]) {
         // Position taken.
-        inputWasCorrect = false;
-    } else if ((gameboard[position[0][1]]) = 1 || (- 1)) {
-        inputWasCorrect = false;
+        isValidInput = false;
+    } 
+
+    if(gameboard[position[0]-1][position[1]-1] != 0){
+        isValidInput = false;
+        
     }
 
     return isValidInput;
