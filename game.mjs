@@ -187,7 +187,7 @@ async function askWantToPlayAgain() {
 function showGameSummary(outcome) {
     clearScreen();
     if (outcome == 2){
-        print("It's a draw");
+        print(language.DRAW_TEXT);
         showGameBoardWithCurrentState();
         print(language.GAME_OVER_TEXT);
     }else{
@@ -327,12 +327,12 @@ function showGameBoardWithCurrentState() {
         for (let currentCol = 0; currentCol < GAME_BOARD_SIZE; currentCol++) {
             cell = gameboard[currentRow][currentCol];
             if (cell == 0) {
-                rowOutput += "_ ";
+                rowOutput += " _ ";
             }
             else if (cell > 0) {
-                rowOutput += "X ";
+                rowOutput += (ANSI.COLOR.GREEN + " X " + ANSI.RESET);
             } else {
-                rowOutput += "O ";
+                rowOutput += (ANSI.COLOR.RED + " O " + ANSI.RESET);
             }
         }
 
