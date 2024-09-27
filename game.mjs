@@ -1,19 +1,20 @@
 import { print, askQuestion } from "./io.mjs"
-import { debug, DEBUG_LEVELS } from "./debug.mjs";
 import { ANSI } from "./ansi.mjs";
 import DICTIONARY from "./language.mjs";
 import showSplashScreen from "./splash.mjs";
-import { ALL } from "dns";
+
 
 const GAME_BOARD_SIZE = 3;
-const PLAYER_1 = 1;
+let PLAYER_1 = 1;
 const PLAYER_2 = -1;
+const CPU = -3;
 
-// These are the valid choices for the menu.
+
 const MENU_CHOICES = {
-    MENU_CHOICE_START_GAME: 1,
-    MENU_CHOICE_SHOW_SETTINGS: 2,
-    MENU_CHOICE_EXIT_GAME: 3
+    MENU_CHOICE_START_PVP: 1,
+    MENU_CHOICE_START_PVC: 2,
+    MENU_CHOICE_SHOW_SETTINGS: 3,
+    MENU_CHOICE_EXIT_GAME: 4
 };
 
 const SETTINGS_MENU_CHOICES = {
@@ -37,7 +38,7 @@ let cell = 0;
 
 clearScreen();
 showSplashScreen();
-setTimeout(start, 2500); // This waits 2.5seconds before calling the function. i.e. we get to see the splash screen for 2.5 seconds before the menue takes over. 
+setTimeout(start, 2500);
 
 
 //#region game functions -----------------------------
@@ -48,8 +49,10 @@ async function start() {
 
         chosenAction = await showMenu();
 
-        if (chosenAction == MENU_CHOICES.MENU_CHOICE_START_GAME) {
-            await runGame();
+        if (chosenAction == MENU_CHOICES.MENU_CHOICE_START_PVP) {
+            await runGamePVP();
+        } else if (chosenAction == MENU_CHOICES.MENU_CHOICE_START_PVC) {
+            await runGamePVC();
         } else if (chosenAction == MENU_CHOICES.MENU_CHOICE_SHOW_SETTINGS) {
             await showSettingsMenu();
         } else if (chosenAction == MENU_CHOICES.MENU_CHOICE_EXIT_GAME) {
@@ -61,13 +64,23 @@ async function start() {
 
 }
 
-async function runGame() {
+async function runGamePVP() {
 
     let isPlaying = true;
 
     while (isPlaying) { // Do the following until the player dos not want to play anymore. 
         initializeGame(); // Reset everything related to playing the game
-        isPlaying = await playGame(); // run the actual game 
+        isPlaying = await playGamePVP(); // run the actual game 
+    }
+}
+
+async function runGamePVC() {
+
+    let isPlaying = true;
+
+    while (isPlaying) { // Do the following until the player dos not want to play anymore. 
+        initializeGame(); // Reset everything related to playing the game
+        isPlaying = await playGamePVC(); // run the actual game 
     }
 }
 
@@ -80,7 +93,8 @@ async function showMenu() {
         // Display our menu to the player.
         clearScreen();
         print(ANSI.COLOR.YELLOW + language.MENU_TEXT + ANSI.RESET);
-        print(language.START_GAME_MENU_TEXT);
+        print(language.START_PVP_MENU_TEXT);
+        print(language.START_PVC_MENU_TEXT);
         print(language.SETTINGS_GAME_MENU_TEXT);
         print(language.EXIT_GAME_MENU_TEXT);
 
@@ -88,7 +102,7 @@ async function showMenu() {
         choice = await askQuestion("");
 
         // Check to see if the choice is valid.
-        if ([MENU_CHOICES.MENU_CHOICE_START_GAME, MENU_CHOICES.MENU_CHOICE_SHOW_SETTINGS, MENU_CHOICES.MENU_CHOICE_EXIT_GAME].includes(Number(choice))) {
+        if ([MENU_CHOICES.MENU_CHOICE_START_PVP, MENU_CHOICES.MENU_CHOICE_START_PVC, MENU_CHOICES.MENU_CHOICE_SHOW_SETTINGS, MENU_CHOICES.MENU_CHOICE_EXIT_GAME].includes(Number(choice))) {
             validChoice = true;
         }
     }
@@ -157,7 +171,7 @@ async function showLanguagesMenu() {
 }
 
 
-async function playGame() {
+async function playGamePVP() {
     // Play game..
     let outcome;
     do {
@@ -175,6 +189,27 @@ async function playGame() {
     return await askWantToPlayAgain();
 }
 
+async function playGamePVC() {
+    // Play game..
+    PLAYER_1 = 3;
+    let outcome;
+    do {
+        clearScreen();
+        showGameBoardWithCurrentState();
+        showHUD();
+        let move = await getGameMoveFromCurrentPlayer();
+        updateGameBoardState(move);
+        outcome = evaluateGameStatePVC();
+        computerTurn();
+        outcome = evaluateGameStatePVC();
+        currentPlayer = PLAYER_1;
+    } while (outcome == 0)
+
+    showGameSummary(outcome);
+
+    return await askWantToPlayAgain();
+}
+
 async function askWantToPlayAgain() {
     let answer = await askQuestion(language.PLAY_AGAIN_QUESTION);
     let playAgain = true;
@@ -184,13 +219,22 @@ async function askWantToPlayAgain() {
     return playAgain;
 }
 
+function changeCurrentPlayer() {
+    currentPlayer *= -1;
+}
+
 function showGameSummary(outcome) {
     clearScreen();
     if (outcome == 2){
         print(language.DRAW_TEXT);
         showGameBoardWithCurrentState();
         print(language.GAME_OVER_TEXT);
-    }else{
+    }else if(playGamePVC){
+        let winningPlayer = (outcome > 0) ? 1 : "CPU";
+        print(language.WINNER_IS_TEXT + winningPlayer);
+        showGameBoardWithCurrentState();
+        print(language.GAME_OVER_TEXT);
+    } else {
         let winningPlayer = (outcome > 0) ? 1 : 2;
         print(language.WINNER_IS_TEXT + winningPlayer);
         showGameBoardWithCurrentState();
@@ -198,8 +242,21 @@ function showGameSummary(outcome) {
     }
 }
 
-function changeCurrentPlayer() {
-    currentPlayer *= -1;
+function computerTurn() {
+    currentPlayer = CPU;
+    const availableMoves = [];
+    for (let row = 0; row < GAME_BOARD_SIZE; row++){
+        for(let col = 0; col < GAME_BOARD_SIZE; col++){
+            if (gameboard[row][col] == 0){
+                availableMoves.push([row+1, col+1]);
+            }
+        }
+    }
+    if (availableMoves.length === 0){
+        return;
+    }
+    let move = getGameMoveFromCPU();
+    updateGameBoardState(move);    
 }
 
 function evaluateGameState() {
@@ -247,7 +304,69 @@ function evaluateGameState() {
 
     
     if (allCellsAreTaken(gameboard) && Math.abs(state) != 3){
-        return 2;
+        return state = 2;
+    }
+
+    function allCellsAreTaken(gameboard){
+        for (let row = 0; row < GAME_BOARD_SIZE; row++) {
+            for (let col = 0; col < GAME_BOARD_SIZE; col++) {
+                if (gameboard[row][col] === 0){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    return state / 3;
+}
+
+function evaluateGameStatePVC() {
+    let sum = 0;
+    let sumPosDiagonal = 0;
+    let sumNegDiagonal = 0;
+    let state = 0;
+
+    for (let row = 0; row < GAME_BOARD_SIZE; row++) {
+
+        for (let col = 0; col < GAME_BOARD_SIZE; col++) {
+            sum += gameboard[row][col];
+        }
+
+        if (Math.abs(sum) == 9) {
+            state = sum;
+        }
+        sum = 0;
+    }
+
+    for (let col = 0; col < GAME_BOARD_SIZE; col++) {
+
+        for (let row = 0; row < GAME_BOARD_SIZE; row++) {
+            sum += gameboard[row][col];
+        }
+
+        if (Math.abs(sum) == 9) {
+            state = sum;
+        }
+
+        sum = 0;
+    }
+
+    for (let i = 0; i < GAME_BOARD_SIZE; i++) {
+        sumNegDiagonal += gameboard[i][GAME_BOARD_SIZE - i - 1];
+        sumPosDiagonal += gameboard[i][i];
+
+        if (Math.abs(sumPosDiagonal) == 9){
+            state = sumPosDiagonal;
+        } else if (Math.abs(sumNegDiagonal) == 9){
+            state = sumNegDiagonal;
+        }
+    }
+
+
+    
+    if (allCellsAreTaken(gameboard) && Math.abs(state) != 9){
+        return state = 2;
     }
 
     function allCellsAreTaken(gameboard){
@@ -284,6 +403,24 @@ async function getGameMoveFromCurrentPlayer() {
     return position;
 }
 
+function getGameMoveFromCPU() {
+    const availableMoves = [];
+    for (let row = 0; row < GAME_BOARD_SIZE; row++){
+        for(let col = 0; col < GAME_BOARD_SIZE; col++){
+            if (gameboard[row][col] == 0){
+                availableMoves.push([row+1, col+1]);
+            }
+        }
+    }
+
+    const randomNumber = Math.floor(Math.random() * availableMoves.length);
+    let position = availableMoves[randomNumber];
+
+    if (isValidPositionOnBoard(position) == true){
+        return position;
+    }
+}
+
 function isValidPositionOnBoard(position) {
 
     if (position.length < 2) {
@@ -304,11 +441,9 @@ function isValidPositionOnBoard(position) {
         // Position taken.
         isValidInput = false;
     } 
-
-    if(gameboard[position[0]-1][position[1]-1] != 0){
-        isValidInput = false;
-        
-    }
+    else if (gameboard[position[0]-1][position[1]-1] != 0){
+        isValidInput = false;   
+        }
 
     return isValidInput;
 }

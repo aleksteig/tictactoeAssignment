@@ -2,9 +2,10 @@ const DICTIONARY = {
 
     en: {
         MENU_TEXT: "MENU",
-        START_GAME_MENU_TEXT: "1. Play Game",
-        SETTINGS_GAME_MENU_TEXT: "2. Settings",
-        EXIT_GAME_MENU_TEXT: "3. Exit Game",
+        START_PVP_MENU_TEXT: "1. Play PvP (Multiplayer)",
+        START_PVC_MENU_TEXT: "2. Play PvC (Singleplayer)",
+        SETTINGS_GAME_MENU_TEXT: "3. Settings",
+        EXIT_GAME_MENU_TEXT: "4. Exit Game",
         SETTINGS_LANGUAGE_TEXT: "1. Languages",
         SETTINGS_BACK_TEXT: "2. Back",
         LANGUAGE_SETTINGS_NORWEGIAN_TEXT: "1. Norwegian",
@@ -23,9 +24,10 @@ const DICTIONARY = {
     },
     no: {
         MENU_TEXT: "MENY",
-        START_GAME_MENU_TEXT: "1. Start Spill",
-        SETTINGS_GAME_MENU_TEXT: "2. Innstillinger",
-        EXIT_GAME_MENU_TEXT: "3. Avslutt spill",
+        START_PVP_MENU_TEXT: "1. Spill PvP (Flerspiller)",
+        START_PVC_MENU_TEXT: "2. Spill PvC (Enkeltspiller)",
+        SETTINGS_GAME_MENU_TEXT: "3. Innstillinger",
+        EXIT_GAME_MENU_TEXT: "4. Avslutt spill",
         SETTINGS_LANGUAGE_TEXT: "1. Språk",
         SETTINGS_BACK_TEXT: "2. Tilbake",
         LANGUAGE_SETTINGS_NORWEGIAN_TEXT: "1. Norsk",
