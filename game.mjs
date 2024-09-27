@@ -5,7 +5,7 @@ import showSplashScreen from "./splash.mjs";
 
 
 const GAME_BOARD_SIZE = 3;
-let PLAYER_1 = 1;
+const PLAYER_1 = 1;
 const PLAYER_2 = -1;
 const CPU = -3;
 
@@ -191,9 +191,9 @@ async function playGamePVP() {
 
 async function playGamePVC() {
     // Play game..
-    PLAYER_1 = 3;
     let outcome;
     do {
+        currentPlayer = PLAYER_1;
         clearScreen();
         showGameBoardWithCurrentState();
         showHUD();
@@ -202,10 +202,9 @@ async function playGamePVC() {
         outcome = evaluateGameStatePVC();
         computerTurn();
         outcome = evaluateGameStatePVC();
-        currentPlayer = PLAYER_1;
     } while (outcome == 0)
 
-    showGameSummary(outcome);
+    showGameSummaryPVC(outcome);
 
     return await askWantToPlayAgain();
 }
@@ -223,15 +222,24 @@ function changeCurrentPlayer() {
     currentPlayer *= -1;
 }
 
-function showGameSummary(outcome) {
+function showGameSummaryPVC(outcome) {
     clearScreen();
     if (outcome == 2){
         print(language.DRAW_TEXT);
         showGameBoardWithCurrentState();
         print(language.GAME_OVER_TEXT);
-    }else if(playGamePVC){
+    } else {
         let winningPlayer = (outcome > 0) ? 1 : "CPU";
         print(language.WINNER_IS_TEXT + winningPlayer);
+        showGameBoardWithCurrentState();
+        print(language.GAME_OVER_TEXT);
+    }
+}
+
+function showGameSummary(outcome) {
+    clearScreen();
+    if (outcome == 2){
+        print(language.DRAW_TEXT);
         showGameBoardWithCurrentState();
         print(language.GAME_OVER_TEXT);
     } else {
@@ -253,6 +261,7 @@ function computerTurn() {
         }
     }
     if (availableMoves.length === 0){
+        currentPlayer = PLAYER_1;
         return;
     }
     let move = getGameMoveFromCPU();
@@ -333,6 +342,10 @@ function evaluateGameStatePVC() {
             sum += gameboard[row][col];
         }
 
+        if (sum == 3) {
+            state = sum;
+        }
+
         if (Math.abs(sum) == 9) {
             state = sum;
         }
@@ -343,6 +356,10 @@ function evaluateGameStatePVC() {
 
         for (let row = 0; row < GAME_BOARD_SIZE; row++) {
             sum += gameboard[row][col];
+        }
+
+        if (sum == 3) {
+            state = sum;
         }
 
         if (Math.abs(sum) == 9) {
@@ -361,6 +378,13 @@ function evaluateGameStatePVC() {
         } else if (Math.abs(sumNegDiagonal) == 9){
             state = sumNegDiagonal;
         }
+
+        if (sumPosDiagonal == 3){
+            state = sumPosDiagonal;
+        } else if (sumNegDiagonal == 3){
+            state = sumNegDiagonal;
+        }
+
     }
 
 
