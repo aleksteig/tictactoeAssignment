@@ -200,8 +200,10 @@ async function playGamePVC() {
         let move = await getGameMoveFromCurrentPlayer();
         updateGameBoardState(move);
         outcome = evaluateGameStatePVC();
-        computerTurn();
-        outcome = evaluateGameStatePVC();
+        if(outcome == 0){
+            computerTurn();
+            outcome = evaluateGameStatePVC();
+        }
     } while (outcome == 0)
 
     showGameSummaryPVC(outcome);
@@ -261,7 +263,6 @@ function computerTurn() {
         }
     }
     if (availableMoves.length === 0){
-        currentPlayer = PLAYER_1;
         return;
     }
     let move = getGameMoveFromCPU();
@@ -312,7 +313,7 @@ function evaluateGameState() {
 
 
     
-    if (allCellsAreTaken(gameboard) && Math.abs(state) != 3){
+    if (allCellsAreTaken(gameboard) && Math.abs(state != 3)){
         return state = 2;
     }
 
@@ -346,7 +347,7 @@ function evaluateGameStatePVC() {
             state = sum;
         }
 
-        if (Math.abs(sum) == 9) {
+        if (sum == (-9)) {
             state = sum;
         }
         sum = 0;
@@ -362,7 +363,7 @@ function evaluateGameStatePVC() {
             state = sum;
         }
 
-        if (Math.abs(sum) == 9) {
+        if (sum == (-9)) {
             state = sum;
         }
 
@@ -373,9 +374,9 @@ function evaluateGameStatePVC() {
         sumNegDiagonal += gameboard[i][GAME_BOARD_SIZE - i - 1];
         sumPosDiagonal += gameboard[i][i];
 
-        if (Math.abs(sumPosDiagonal) == 9){
+        if (sumPosDiagonal == (-9)){
             state = sumPosDiagonal;
-        } else if (Math.abs(sumNegDiagonal) == 9){
+        } else if (sumNegDiagonal == (-9)){
             state = sumNegDiagonal;
         }
 
@@ -387,9 +388,7 @@ function evaluateGameStatePVC() {
 
     }
 
-
-    
-    if (allCellsAreTaken(gameboard) && Math.abs(state) != 9){
+    if (allCellsAreTaken(gameboard) && state != 3){
         return state = 2;
     }
 
