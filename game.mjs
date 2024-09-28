@@ -8,6 +8,9 @@ const GAME_BOARD_SIZE = 3;
 const PLAYER_1 = 1;
 const PLAYER_2 = -1;
 const CPU = -3;
+const CPU_TEXT = "CPU";
+const PLAYER_ONE_TEXT = 1;
+const PLAYER_TWO_TEXT = 2;
 
 
 const MENU_CHOICES = {
@@ -30,32 +33,32 @@ const LANGUAGE_MENU_CHOICES = {
 
 const NO_CHOICE = -1;
 
-let chosenAction = NO_CHOICE;
+let selectedMenuOption = NO_CHOICE;
 let language = DICTIONARY.en;
 let gameboard;
 let currentPlayer;
-let cell = 0;
+let currentCellValue = 0;
 
 clearScreen();
 showSplashScreen();
-setTimeout(start, 2500);
+setTimeout(startMenu, 2500);
 
 
 //#region game functions -----------------------------
 
-async function start() {
+async function startMenu() {
 
     do {
 
-        chosenAction = await showMenu();
+        selectedMenuOption = await showMenu();
 
-        if (chosenAction == MENU_CHOICES.MENU_CHOICE_START_PVP) {
+        if (selectedMenuOption == MENU_CHOICES.MENU_CHOICE_START_PVP) {
             await runGamePVP();
-        } else if (chosenAction == MENU_CHOICES.MENU_CHOICE_START_PVC) {
+        } else if (selectedMenuOption == MENU_CHOICES.MENU_CHOICE_START_PVC) {
             await runGamePVC();
-        } else if (chosenAction == MENU_CHOICES.MENU_CHOICE_SHOW_SETTINGS) {
+        } else if (selectedMenuOption == MENU_CHOICES.MENU_CHOICE_SHOW_SETTINGS) {
             await showSettingsMenu();
-        } else if (chosenAction == MENU_CHOICES.MENU_CHOICE_EXIT_GAME) {
+        } else if (selectedMenuOption == MENU_CHOICES.MENU_CHOICE_EXIT_GAME) {
             clearScreen();
             process.exit();
         }
@@ -68,9 +71,9 @@ async function runGamePVP() {
 
     let isPlaying = true;
 
-    while (isPlaying) { // Do the following until the player dos not want to play anymore. 
-        initializeGame(); // Reset everything related to playing the game
-        isPlaying = await playGamePVP(); // run the actual game 
+    while (isPlaying) {
+        initializeGame();
+        isPlaying = await playGamePVP();
     }
 }
 
@@ -78,19 +81,18 @@ async function runGamePVC() {
 
     let isPlaying = true;
 
-    while (isPlaying) { // Do the following until the player dos not want to play anymore. 
-        initializeGame(); // Reset everything related to playing the game
-        isPlaying = await playGamePVC(); // run the actual game 
+    while (isPlaying) {
+        initializeGame();
+        isPlaying = await playGamePVC();
     }
 }
 
 async function showMenu() {
 
-    let choice = -1;  // This variable tracks the choice the player has made. We set it to -1 initially because that is not a valid choice.
-    let validChoice = false;    // This variable tells us if the choice the player has made is one of the valid choices. It is initially set to false because the player has made no choices.
+    let choice = -1;
+    let validChoice = false;
 
     while (!validChoice) {
-        // Display our menu to the player.
         clearScreen();
         print(ANSI.COLOR.YELLOW + language.MENU_TEXT + ANSI.RESET);
         print(language.START_PVP_MENU_TEXT);
@@ -98,10 +100,8 @@ async function showMenu() {
         print(language.SETTINGS_GAME_MENU_TEXT);
         print(language.EXIT_GAME_MENU_TEXT);
 
-        // Wait for the choice.
         choice = await askQuestion("");
 
-        // Check to see if the choice is valid.
         if ([MENU_CHOICES.MENU_CHOICE_START_PVP, MENU_CHOICES.MENU_CHOICE_START_PVC, MENU_CHOICES.MENU_CHOICE_SHOW_SETTINGS, MENU_CHOICES.MENU_CHOICE_EXIT_GAME].includes(Number(choice))) {
             validChoice = true;
         }
@@ -112,26 +112,23 @@ async function showMenu() {
 
 async function showSettingsMenu() {
 
-    let choice = -1;  // This variable tracks the choice the player has made. We set it to -1 initially because that is not a valid choice.
-    let validChoice = false;    // This variable tells us if the choice the player has made is one of the valid choices. It is initially set to false because the player has made no choices.
+    let choice = -1;
+    let validChoice = false;
 
     while (!validChoice) {
-        // Display our menu to the player.
         clearScreen();
         print(ANSI.COLOR.YELLOW + language.MENU_TEXT + ANSI.RESET);
         print(language.SETTINGS_LANGUAGE_TEXT);
         print(language.SETTINGS_BACK_TEXT);
 
-        // Wait for the choice.
         choice = await askQuestion("");
 
-        // Check to see if the choice is valid.
         if ([SETTINGS_MENU_CHOICES.SETTINGS_MENU_CHOICE_LANGUAGES].includes(Number(choice))){
             validChoice = true;
             await showLanguagesMenu();
         } else {
             validChoice = true;
-            await start();
+            await startMenu();
         }
         
     }
@@ -141,21 +138,18 @@ async function showSettingsMenu() {
 
 async function showLanguagesMenu() {
 
-    let choice = -1;  // This variable tracks the choice the player has made. We set it to -1 initially because that is not a valid choice.
-    let validChoice = false;    // This variable tells us if the choice the player has made is one of the valid choices. It is initially set to false because the player has made no choices.
+    let choice = -1;
+    let validChoice = false;
 
     while (!validChoice) {
-        // Display our menu to the player.
         clearScreen();
         print(ANSI.COLOR.YELLOW + language.MENU_TEXT + ANSI.RESET);
         print(language.LANGUAGE_SETTINGS_NORWEGIAN_TEXT);
         print(language.LANGUAGE_SETTINGS_ENGLISH_TEXT);
         print(language.LANGUAGE_SETTINGS_BACK_TEXT);
 
-        // Wait for the choice.
         choice = await askQuestion("");
 
-        // Check to see if the choice is valid.
         if ([LANGUAGE_MENU_CHOICES.LANGUAGE_MENU_CHOICE_NORWEGIAN].includes(Number(choice))) {
             validChoice = true;
             language = DICTIONARY.no;
@@ -172,7 +166,7 @@ async function showLanguagesMenu() {
 
 
 async function playGamePVP() {
-    // Play game..
+
     let outcome;
     do {
         clearScreen();
@@ -190,7 +184,7 @@ async function playGamePVP() {
 }
 
 async function playGamePVC() {
-    // Play game..
+
     let outcome;
     do {
         currentPlayer = PLAYER_1;
@@ -212,6 +206,7 @@ async function playGamePVC() {
 }
 
 async function askWantToPlayAgain() {
+
     let answer = await askQuestion(language.PLAY_AGAIN_QUESTION);
     let playAgain = true;
     if (answer && answer.toLowerCase()[0] != language.CONFIRM) {
@@ -225,13 +220,14 @@ function changeCurrentPlayer() {
 }
 
 function showGameSummaryPVC(outcome) {
+
     clearScreen();
     if (outcome == 2){
         print(language.DRAW_TEXT);
         showGameBoardWithCurrentState();
         print(language.GAME_OVER_TEXT);
     } else {
-        let winningPlayer = (outcome > 0) ? 1 : "CPU";
+        let winningPlayer = (outcome > 0) ? PLAYER_ONE_TEXT : CPU_TEXT;
         print(language.WINNER_IS_TEXT + winningPlayer);
         showGameBoardWithCurrentState();
         print(language.GAME_OVER_TEXT);
@@ -239,13 +235,14 @@ function showGameSummaryPVC(outcome) {
 }
 
 function showGameSummary(outcome) {
+
     clearScreen();
     if (outcome == 2){
         print(language.DRAW_TEXT);
         showGameBoardWithCurrentState();
         print(language.GAME_OVER_TEXT);
     } else {
-        let winningPlayer = (outcome > 0) ? 1 : 2;
+        let winningPlayer = (outcome > 0) ? PLAYER_ONE_TEXT : PLAYER_TWO_TEXT;
         print(language.WINNER_IS_TEXT + winningPlayer);
         showGameBoardWithCurrentState();
         print(language.GAME_OVER_TEXT);
@@ -253,8 +250,10 @@ function showGameSummary(outcome) {
 }
 
 function computerTurn() {
+
     currentPlayer = CPU;
     const availableMoves = [];
+
     for (let row = 0; row < GAME_BOARD_SIZE; row++){
         for(let col = 0; col < GAME_BOARD_SIZE; col++){
             if (gameboard[row][col] == 0){
@@ -262,14 +261,17 @@ function computerTurn() {
             }
         }
     }
+
     if (availableMoves.length === 0){
         return;
     }
+
     let move = getGameMoveFromCPU();
     updateGameBoardState(move);    
 }
 
 function evaluateGameState() {
+
     let sum = 0;
     let sumPosDiagonal = 0;
     let sumNegDiagonal = 0;
@@ -436,8 +438,8 @@ function getGameMoveFromCPU() {
         }
     }
 
-    const randomNumber = Math.floor(Math.random() * availableMoves.length);
-    let position = availableMoves[randomNumber];
+    const randomMoveFromAvailableMoves = Math.floor(Math.random() * availableMoves.length);
+    let position = availableMoves[randomMoveFromAvailableMoves];
 
     if (isValidPositionOnBoard(position) == true){
         return position;
@@ -447,21 +449,17 @@ function getGameMoveFromCPU() {
 function isValidPositionOnBoard(position) {
 
     if (position.length < 2) {
-        // We were not given two numbers or more.
         return false;
     }
 
     let isValidInput = true;
 
     if (position[0] * 1 != position[0] && position[1] * 1 != position[1]) {
-        // Not Numbers
         isValidInput = false;
     } else if (position[0] > GAME_BOARD_SIZE || position[1] > GAME_BOARD_SIZE) {
-        // Not on board
         isValidInput = false;
     }
     else if (Number.parseInt(position[0]) != position[0] && Number.parseInt(position[1]) != position[1]) {
-        // Position taken.
         isValidInput = false;
     } 
     else if (gameboard[position[0]-1][position[1]-1] != 0){
@@ -483,14 +481,14 @@ function showGameBoardWithCurrentState() {
     for (let currentRow = 0; currentRow < GAME_BOARD_SIZE; currentRow++) {
         let rowOutput = "";
         for (let currentCol = 0; currentCol < GAME_BOARD_SIZE; currentCol++) {
-            cell = gameboard[currentRow][currentCol];
-            if (cell == 0) {
-                rowOutput += " _ ";
+            currentCellValue = gameboard[currentRow][currentCol];
+            if (currentCellValue === 0) {
+                rowOutput += "[_]";
             }
-            else if (cell > 0) {
-                rowOutput += (ANSI.COLOR.GREEN + " X " + ANSI.RESET);
+            else if (currentCellValue > 0) {
+                rowOutput += (ANSI.COLOR.GREEN + "[X]" + ANSI.RESET);
             } else {
-                rowOutput += (ANSI.COLOR.RED + " O " + ANSI.RESET);
+                rowOutput += (ANSI.COLOR.RED + "[O]" + ANSI.RESET);
             }
         }
 
